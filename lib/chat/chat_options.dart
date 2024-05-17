@@ -27,7 +27,7 @@ class ChatOptionsPage extends StatelessWidget {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const ViewJoinRequestPage(),
+                        builder: (context) => ViewJoinRequestPage(),
                       ));
                 },
                 child: const Text("View Join Request")),

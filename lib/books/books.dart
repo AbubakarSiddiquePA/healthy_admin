@@ -6,9 +6,12 @@ class BooksPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Text(
-        'Books Page',
-        style: Theme.of(context).textTheme.headlineMedium,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Text(
+          'All Added Books will be visible hear',
+          style: Theme.of(context).textTheme.headlineMedium,
+        ),
       ),
     );
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:healthy_admin/books/view_editbooks.dart';
 
 class AddBookPage extends StatelessWidget {
   const AddBookPage({super.key});
@@ -6,7 +7,21 @@ class AddBookPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Add a Book")),
+      appBar: AppBar(actions: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: IconButton(
+            icon: Icon(Icons.remove_red_eye),
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ViewOrEditBooks(),
+                  ));
+            },
+          ),
+        )
+      ], title: const Text("Add a Book")),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
