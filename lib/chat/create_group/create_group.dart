@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 
-class AddBookPage extends StatelessWidget {
-  const AddBookPage({super.key});
+class CreateGroupPage extends StatelessWidget {
+  const CreateGroupPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Add a Book")),
+      appBar: AppBar(
+        title: const Text("Create Group"),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -14,19 +16,18 @@ class AddBookPage extends StatelessWidget {
           children: <Widget>[
             TextFormField(
               decoration: const InputDecoration(
-                labelText: "Book Name",
+                labelText: "Group Name",
               ),
             ),
             TextFormField(
               decoration: const InputDecoration(
-                labelText: "Author Name",
+                labelText: "Group Description",
               ),
             ),
             ElevatedButton(
-                onPressed: () {}, child: const Text("Upload Cover Image")),
-            ElevatedButton(
-                onPressed: () {}, child: const Text("Upload Book File PDF")),
-            ElevatedButton(onPressed: () {}, child: const Text("Save"))
+                onPressed: () {},
+                child: const Text("Upload Group Cover Image")),
+            ElevatedButton(onPressed: () {}, child: const Text("Create Group")),
           ],
         )),
       ),
