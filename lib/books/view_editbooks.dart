@@ -79,7 +79,7 @@ class ViewOrEditBooks extends StatelessWidget {
                     },
                   ),
                   IconButton(
-                    icon: Icon(color: Colors.red, Icons.delete),
+                    icon: const Icon(color: Colors.red, Icons.delete),
                     onPressed: () {
                       // Implement download book functionality
                       ScaffoldMessenger.of(context).showSnackBar(
