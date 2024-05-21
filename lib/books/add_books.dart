@@ -11,7 +11,7 @@ class AddBookPage extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: IconButton(
-            icon: Icon(Icons.remove_red_eye),
+            icon: const Icon(Icons.remove_red_eye),
             onPressed: () {
               Navigator.push(
                   context,
