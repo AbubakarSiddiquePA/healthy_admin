@@ -1,5 +1,8 @@
+// import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+// import 'package:image_picker/image_picker.dart';
 
 class CreateGroupPage extends StatefulWidget {
   const CreateGroupPage({super.key});
@@ -12,26 +15,53 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
   final _formKey = GlobalKey<FormState>();
   String _groupName = "";
   String _groupDescription = "";
+  // File? _imageFile;
+  // final ImagePicker _picker = ImagePicker();
 
   Future<void> createGroup() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
+      // String? coverImageUrl;
+      // if (_imageFile != null) {
+      //   coverImageUrl = await uploadImageToFirebase(_imageFile!);
+      // } else {
+      //   coverImageUrl = 'assets/images/images.jpeg'; // default image
+      // }
       try {
         await FirebaseFirestore.instance.collection("groups").add({
           "name": _groupName,
           "description": _groupDescription,
-          "coverImage": 'assets/images/images.jpeg'
+          // "coverImage": coverImageUrl,
         });
         // ignore: use_build_context_synchronously
         ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text("Group Created Successfully")));
       } catch (e) {
         // ignore: use_build_context_synchronously
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text("Failed to create group:$e")));
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Failed to create group: $e")));
       }
     }
   }
+
+  // Future<void> pickImage() async {
+  //   final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+  //   if (pickedFile != null) {
+  //     setState(() {
+  //       _imageFile = File(pickedFile.path);
+  //     });
+  //   }
+  // }
+
+  // Future<String> uploadImageToFirebase(File imageFile) async {
+  //   final storageRef = FirebaseStorage.instance
+  //       .ref()
+  //       .child('group_cover_images/${DateTime.now().toString()}.jpg');
+  //   final uploadTask = storageRef.putFile(imageFile);
+  //   final snapshot = await uploadTask;
+  //   final downloadUrl = await snapshot.ref.getDownloadURL();
+  //   return downloadUrl;
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -91,15 +121,21 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    SizedBox(
+                    const SizedBox(
                       width: 100,
                       height: 100,
                       child: CircleAvatar(
-                        child: Image.asset("assets/images/images.jpeg"),
+                        backgroundImage:
+                            AssetImage("assets/images/images.jpeg"),
+                        // backgroundImage: _imageFile != null
+                        //     ? FileImage(_imageFile!)
+                        //     : const AssetImage("assets/images/images.jpeg")
+                        //         as ImageProvider,
                       ),
                     ),
                     const SizedBox(width: 10),
                     ElevatedButton(
+                        // onPressed: pickImage,
                         onPressed: () {},
                         child: const Text("Upload Group Cover Image")),
                   ],

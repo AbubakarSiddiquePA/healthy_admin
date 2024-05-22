@@ -1,79 +1,6 @@
-// import 'package:flutter/material.dart';
-
-// class JoinRequest {
-//   final String email;
-
-//   JoinRequest({required this.email});
-// }
-
-// class ViewJoinRequestPage extends StatelessWidget {
-//   ViewJoinRequestPage({super.key});
-
-//   final List<JoinRequest> joinRequests = [
-//     JoinRequest(email: 'user1@example.com'),
-//     JoinRequest(email: 'user2@example.com'),
-//     JoinRequest(email: 'user3@example.com'),
-//   ];
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         actions: [
-//           Padding(
-//             padding: const EdgeInsets.only(right: 16),
-//             child: Text(
-//                 style:
-//                     const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-//                 "Requests: ${joinRequests.length}"),
-//           )
-//         ],
-//         title: const Text('Join Requests'),
-//       ),
-//       body: ListView.builder(
-//         itemCount: joinRequests.length,
-//         itemBuilder: (context, index) {
-//           return Card(
-//             child: ListTile(
-//               title: Text(
-//                   '${joinRequests[index].email} has requested to join the group'),
-//               trailing: Row(
-//                 mainAxisSize: MainAxisSize.min,
-//                 children: [
-//                   IconButton(
-//                     icon: const Icon(Icons.check, color: Colors.green),
-//                     onPressed: () {
-//                       // Implement accept request functionality
-//                       ScaffoldMessenger.of(context).showSnackBar(
-//                         SnackBar(
-//                             content: Text(
-//                                 'Accepted request from ${joinRequests[index].email}')),
-//                       );
-//                     },
-//                   ),
-//                   IconButton(
-//                     icon: const Icon(Icons.close, color: Colors.red),
-//                     onPressed: () {
-//                       // Implement reject request functionality
-//                       ScaffoldMessenger.of(context).showSnackBar(
-//                         SnackBar(
-//                             content: Text(
-//                                 'Rejected request from ${joinRequests[index].email}')),
-//                       );
-//                     },
-//                   ),
-//                 ],
-//               ),
-//             ),
-//           );
-//         },
-//       ),
-//     );
-//   }
-// }
-
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 
 class ViewJoinRequestPage extends StatelessWidget {
   const ViewJoinRequestPage({super.key});
@@ -82,7 +9,26 @@ class ViewJoinRequestPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Join Requests'),
+        title: StreamBuilder<QuerySnapshot>(
+          stream:
+              FirebaseFirestore.instance.collection('joinRequests').snapshots(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Text('Join Requests');
+            }
+
+            if (snapshot.hasError) {
+              return const Text('Error');
+            }
+
+            final requestCount = snapshot.data!.docs.length;
+            return Row(
+              children: [
+                Text('Join Requests: $requestCount'),
+              ],
+            );
+          },
+        ),
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
@@ -107,26 +53,55 @@ class ViewJoinRequestPage extends StatelessWidget {
             itemCount: requests.length,
             itemBuilder: (context, index) {
               final request = requests[index];
-              return ListTile(
-                title: Text(request['email']),
-                subtitle: Text(
-                  request['timestamp'] != null
-                      ? request['timestamp'].toDate().toString()
-                      : 'Pending',
-                ),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.check),
-                      onPressed: () => _approveRequest(request.id),
+              return FutureBuilder<DocumentSnapshot>(
+                future: FirebaseFirestore.instance
+                    .collection('groups')
+                    .doc(request['groupId'])
+                    .get(),
+                builder: (context, groupSnapshot) {
+                  if (groupSnapshot.connectionState ==
+                      ConnectionState.waiting) {
+                    return const ListTile(
+                      title: Text('Loading...'),
+                    );
+                  }
+
+                  if (groupSnapshot.hasError ||
+                      !groupSnapshot.hasData ||
+                      !groupSnapshot.data!.exists) {
+                    return const ListTile(
+                      title: Text('Group not found'),
+                    );
+                  }
+
+                  final group = groupSnapshot.data!;
+                  return Card(
+                    color: Colors.white24,
+                    child: ListTile(
+                      title: Text(request['email']),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Group: ${group['name']}'),
+                          Text('Times and Date: ${_formatTimestamp(request)}'),
+                        ],
+                      ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.check),
+                            onPressed: () => _approveRequest(request.id),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.close),
+                            onPressed: () => _rejectRequest(request.id),
+                          ),
+                        ],
+                      ),
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () => _rejectRequest(request.id),
-                    ),
-                  ],
-                ),
+                  );
+                },
               );
             },
           );
@@ -135,19 +110,26 @@ class ViewJoinRequestPage extends StatelessWidget {
     );
   }
 
-  Future<void> _approveRequest(String requestId) async {
-    // Update the request status or add the user to the group, then delete the request
-    await FirebaseFirestore.instance
-        .collection('joinRequests')
-        .doc(requestId)
-        .delete();
+  String _formatTimestamp(DocumentSnapshot request) {
+    // DateTime timestamp = request['timestamp']?.toDate();
+    // Format timestamp as 'id now' where 'id' is the current hour and minute
+    String formattedTime = DateFormat('hh:mma').format(DateTime.now());
+    // Format today's date as '5-May-2024'
+    String formattedDate = DateFormat('d-MMM-yyyy').format(DateTime.now());
+    return '$formattedDate $formattedTime';
   }
+}
 
-  Future<void> _rejectRequest(String requestId) async {
-    // Simply delete the request
-    await FirebaseFirestore.instance
-        .collection('joinRequests')
-        .doc(requestId)
-        .delete();
-  }
+Future<void> _approveRequest(String requestId) async {
+  await FirebaseFirestore.instance
+      .collection('joinRequests')
+      .doc(requestId)
+      .update({'status': 'approved'});
+}
+
+Future<void> _rejectRequest(String requestId) async {
+  await FirebaseFirestore.instance
+      .collection('joinRequests')
+      .doc(requestId)
+      .delete();
 }
