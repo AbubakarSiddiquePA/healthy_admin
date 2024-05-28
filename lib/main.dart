@@ -14,7 +14,7 @@ void main() async {
               appId: "1:764846460901:android:19d80dd753538ccc65a90c",
               messagingSenderId: "764846460901",
               projectId: "healthy-a9610",
-              // storageBucket: "healthy-a9610.appspot.com",
+              storageBucket: "healthy-a9610.appspot.com",
             )
           : null);
   runApp(const MyApp());
