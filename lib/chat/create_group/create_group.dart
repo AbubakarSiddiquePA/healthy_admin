@@ -1,31 +1,14 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: CreateGroupPage(),
-    );
-  }
-}
 
 class CreateGroupPage extends StatefulWidget {
   const CreateGroupPage({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _CreateGroupPageState createState() => _CreateGroupPageState();
 }
 
@@ -100,9 +83,11 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
               children: <Widget>[
                 const SizedBox(height: 10),
                 TextFormField(
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Colors.limeAccent[400],
                     suffixIcon: Icon(Icons.group),
-                    suffixIconColor: Colors.limeAccent,
+                    suffixIconColor: Colors.black,
                     border: OutlineInputBorder(),
                     hintText: "Enter Group Name ",
                     labelText: "Group Name",
@@ -119,9 +104,11 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                 ),
                 const SizedBox(height: 20),
                 TextFormField(
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Colors.limeAccent[400],
                     suffixIcon: Icon(Icons.abc),
-                    suffixIconColor: Colors.limeAccent,
+                    suffixIconColor: Colors.black,
                     border: OutlineInputBorder(),
                     hintText: "Enter Group Description ",
                     labelText: "Group Description",

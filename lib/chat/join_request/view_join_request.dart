@@ -21,7 +21,7 @@ class ViewJoinRequestPage extends StatelessWidget {
               return const Text('Error');
             }
 
-            final requestCount = snapshot.data!.docs.length;
+            final requestCount = snapshot.data?.docs.length ?? 0;
             return Row(
               children: [
                 Text('Join Requests: $requestCount'),
@@ -66,15 +66,20 @@ class ViewJoinRequestPage extends StatelessWidget {
                     );
                   }
 
-                  if (groupSnapshot.hasError ||
-                      !groupSnapshot.hasData ||
-                      !groupSnapshot.data!.exists) {
-                    return const ListTile(
-                      title: Text('Group not found'),
+                  if (groupSnapshot.hasError) {
+                    return ListTile(
+                      title: Text(request['email']),
+                      subtitle: const Text('Error loading group information'),
                     );
                   }
 
+                  if (!groupSnapshot.hasData || !groupSnapshot.data!.exists) {
+                    return Container();
+                  }
+
                   final group = groupSnapshot.data!;
+                  final isApproved = request['status'] == 'approved';
+
                   return Card(
                     color: Colors.white24,
                     child: ListTile(
@@ -89,14 +94,24 @@ class ViewJoinRequestPage extends StatelessWidget {
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          IconButton(
-                            icon: const Icon(Icons.check),
-                            onPressed: () => _approveRequest(request.id),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.close),
-                            onPressed: () => _rejectRequest(request.id),
-                          ),
+                          if (!isApproved)
+                            IconButton(
+                              icon: const Icon(
+                                Icons.check,
+                                color: Colors.green,
+                              ),
+                              onPressed: () =>
+                                  _approveRequest(request.id, context),
+                            ),
+                          if (!isApproved)
+                            IconButton(
+                              icon: const Icon(
+                                Icons.close,
+                                color: Colors.red,
+                              ),
+                              onPressed: () =>
+                                  _rejectRequest(request.id, context),
+                            ),
                         ],
                       ),
                     ),
@@ -111,25 +126,41 @@ class ViewJoinRequestPage extends StatelessWidget {
   }
 
   String _formatTimestamp(DocumentSnapshot request) {
-    // DateTime timestamp = request['timestamp']?.toDate();
-    // Format timestamp as 'id now' where 'id' is the current hour and minute
-    String formattedTime = DateFormat('hh:mma').format(DateTime.now());
-    // Format today's date as '5-May-2024'
-    String formattedDate = DateFormat('d-MMM-yyyy').format(DateTime.now());
+    final timestamp = request['timestamp']?.toDate() ?? DateTime.now();
+    String formattedTime = DateFormat('hh:mma').format(timestamp);
+    String formattedDate = DateFormat('d-MMM-yyyy').format(timestamp);
     return '$formattedDate $formattedTime';
   }
-}
 
-Future<void> _approveRequest(String requestId) async {
-  await FirebaseFirestore.instance
-      .collection('joinRequests')
-      .doc(requestId)
-      .update({'status': 'approved'});
-}
+  Future<void> _approveRequest(String requestId, BuildContext context) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('joinRequests')
+          .doc(requestId)
+          .update({'status': 'approved'});
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Request approved')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to approve request: $e')),
+      );
+    }
+  }
 
-Future<void> _rejectRequest(String requestId) async {
-  await FirebaseFirestore.instance
-      .collection('joinRequests')
-      .doc(requestId)
-      .delete();
+  Future<void> _rejectRequest(String requestId, BuildContext context) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('joinRequests')
+          .doc(requestId)
+          .delete();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Request rejected')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to reject request: $e')),
+      );
+    }
+  }
 }

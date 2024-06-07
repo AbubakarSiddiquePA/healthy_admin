@@ -9,30 +9,28 @@ class ChatOptionsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("ChatOptions")),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const CreateGroupPage(),
-                      ));
-                },
-                child: const Text("Create Group")),
-            ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ViewJoinRequestPage(),
-                      ));
-                },
-                child: const Text("View Join Request")),
-          ],
-        ),
+      body: Column(
+        // mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const CreateGroupPage(),
+                    ));
+              },
+              child: const Text("Create Group")),
+          ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ViewJoinRequestPage(),
+                    ));
+              },
+              child: const Text("View Join Request")),
+        ],
       ),
     );
   }
