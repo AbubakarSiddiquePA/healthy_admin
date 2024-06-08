@@ -16,11 +16,21 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _currentIndex = 0;
+  late List<Widget> _pages;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _pages = [
+      BookListScreen(),
+      communityItems(context),
+    ];
+  }
 
-  final List<Widget> _pages = [
-    const BookListScreen(),
-    const ChatPage(),
-  ];
+  // final List<Widget> _pages = [
+  //   const BookListScreen(),
+  //   communityItems(context), // Call communityItems here
+  // ];
 
   void _onFloatingActionButtonPressed() {
     if (_currentIndex == 0) {
