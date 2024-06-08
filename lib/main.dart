@@ -33,7 +33,10 @@ class MyApp extends StatelessWidget {
       home: const Center(
         child: MyHomePage(
           centerTitle: Center(
-            child: Text("Healthy Admin"),
+            child: Text(
+              "Healthy Admin",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
           ),
           // title: ' Healthy Admin',
         ),

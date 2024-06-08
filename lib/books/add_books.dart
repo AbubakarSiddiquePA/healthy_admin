@@ -132,7 +132,11 @@ class _AddBookPageState extends State<AddBookPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Add a Book"),
+        title: const Text(
+          "Add a Book",
+          style: TextStyle(
+              fontWeight: FontWeight.bold, color: Colors.black, fontSize: 16),
+        ),
       ),
       body: SingleChildScrollView(
         child: Padding(

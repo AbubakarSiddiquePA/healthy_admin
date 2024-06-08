@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
@@ -9,25 +11,10 @@ class ViewJoinRequestPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: StreamBuilder<QuerySnapshot>(
-          stream:
-              FirebaseFirestore.instance.collection('joinRequests').snapshots(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Text('Join Requests');
-            }
-
-            if (snapshot.hasError) {
-              return const Text('Error');
-            }
-
-            final requestCount = snapshot.data?.docs.length ?? 0;
-            return Row(
-              children: [
-                Text('Join Requests: $requestCount'),
-              ],
-            );
-          },
+        title: const Text(
+          'Join Requests',
+          style: TextStyle(
+              fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black),
         ),
       ),
       body: StreamBuilder<QuerySnapshot>(
@@ -81,14 +68,14 @@ class ViewJoinRequestPage extends StatelessWidget {
                   final isApproved = request['status'] == 'approved';
 
                   return Card(
-                    color: Colors.white24,
+                    color: Colors.limeAccent[400],
                     child: ListTile(
                       title: Text(request['email']),
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text('Group: ${group['name']}'),
-                          Text('Times and Date: ${_formatTimestamp(request)}'),
+                          Text('Time and Date: ${_formatTimestamp(request)}'),
                         ],
                       ),
                       trailing: Row(
