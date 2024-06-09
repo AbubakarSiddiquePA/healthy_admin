@@ -1,4 +1,7 @@
+// ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api
+
 import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
@@ -10,7 +13,6 @@ class PdfViewerScreen extends StatefulWidget {
   const PdfViewerScreen({required this.url, super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _PdfViewerScreenState createState() => _PdfViewerScreenState();
 }
 
@@ -34,22 +36,18 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
       final file = File(filePath);
       await file.writeAsBytes(response.data);
 
-      if (mounted) {
-        setState(() {
-          _pdfController = PdfController(
-            document: PdfDocument.openFile(filePath),
-          );
-          isLoading = false;
-        });
-      }
+      setState(() {
+        _pdfController = PdfController(
+          document: PdfDocument.openFile(filePath),
+        );
+        isLoading = false;
+      });
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Failed to load PDF: $e')));
-        setState(() {
-          isLoading = false;
-        });
-      }
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Failed to load PDF: $e')));
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
@@ -57,7 +55,7 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Read PDF'),
+        title: const Text('PDF Viewer'),
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())

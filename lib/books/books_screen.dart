@@ -1,12 +1,23 @@
-// ignore_for_file: use_build_context_synchronously
-
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:healthy_admin/books/books_pdf_view.dart';
 
-class BookListScreen extends StatelessWidget {
+class BookListScreen extends StatefulWidget {
   const BookListScreen({super.key});
+
+  @override
+  _BookListScreenState createState() => _BookListScreenState();
+}
+
+class _BookListScreenState extends State<BookListScreen> {
+  late ScaffoldMessengerState scaffoldMessenger;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    scaffoldMessenger = ScaffoldMessenger.of(context);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -14,8 +25,8 @@ class BookListScreen extends StatelessWidget {
       appBar: AppBar(
         centerTitle: true,
         title: const Text(
-          '''Book's List''',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          'Book List',
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
       ),
       body: StreamBuilder(
@@ -39,22 +50,28 @@ class BookListScreen extends StatelessWidget {
             itemCount: books.length,
             itemBuilder: (context, index) {
               return Card(
-                margin: const EdgeInsets.all(14),
-                // borderOnForeground: true,
                 child: ListTile(
                   leading: GestureDetector(
                     onTap: () {
                       _showEnlargedImage(context, books[index].imageUrl);
                     },
-                    child: Image.network(books[index].imageUrl),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Image.network(books[index].imageUrl),
+                    ),
                   ),
-                  title: Text(books[index].title),
+                  title: Text(
+                    books[index].title,
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
                   subtitle: Text(books[index].author),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.remove_red_eye),
+                        icon: CircleAvatar(
+                            backgroundColor: Colors.limeAccent[400],
+                            child: const Icon(Icons.picture_as_pdf)),
                         onPressed: () {
                           Navigator.push(
                             context,
@@ -66,7 +83,9 @@ class BookListScreen extends StatelessWidget {
                         },
                       ),
                       IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
+                        icon: CircleAvatar(
+                            backgroundColor: Colors.limeAccent[400],
+                            child: const Icon(Icons.delete, color: Colors.red)),
                         onPressed: () async {
                           showDialog<void>(
                             context: context,
@@ -128,37 +147,43 @@ class BookListScreen extends StatelessWidget {
           .doc(book.id)
           .delete();
 
-      // Show success message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('${book.title} deleted successfully')),
-      );
+      // Show success message if the widget is still mounted
+      if (mounted) {
+        scaffoldMessenger.showSnackBar(
+          SnackBar(content: Text('${book.title}-book deleted successfully')),
+        );
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to delete ${book.title}: $e')),
-      );
+      // Show failure message if the widget is still mounted
+      if (mounted) {
+        scaffoldMessenger.showSnackBar(
+          SnackBar(content: Text('Failed to delete ${book.title}: $e')),
+        );
+      }
     }
   }
-}
 
-void _showEnlargedImage(BuildContext context, String imageUrl) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return Dialog(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Image.network(imageUrl),
-            TextButton(
+  void _showEnlargedImage(BuildContext context, String imageUrl) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Image.network(imageUrl),
+              TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
-                child: const Text("Close"))
-          ],
-        ),
-      );
-    },
-  );
+                child: const Text("Close"),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 }
 
 class Book {

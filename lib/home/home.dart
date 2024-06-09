@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:healthy_admin/books/add_books.dart';
-import 'package:healthy_admin/books/books.dart';
-import 'package:healthy_admin/chat/chat.dart';
-import 'package:healthy_admin/chat/create_group/create_group.dart';
-import 'package:healthy_admin/chat/join_request/view_join_request.dart';
+import 'package:healthy_admin/books/books_add.dart';
+import 'package:healthy_admin/books/books_screen.dart';
+import 'package:healthy_admin/chat/chat_card.dart';
+import 'package:healthy_admin/chat/create_group/chat_create_group.dart';
+import 'package:healthy_admin/chat/join_request/chat_view_join_request.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.centerTitle});
@@ -19,18 +19,12 @@ class _MyHomePageState extends State<MyHomePage> {
   late List<Widget> _pages;
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _pages = [
-      BookListScreen(),
+      const BookListScreen(),
       communityItems(context),
     ];
   }
-
-  // final List<Widget> _pages = [
-  //   const BookListScreen(),
-  //   communityItems(context), // Call communityItems here
-  // ];
 
   void _onFloatingActionButtonPressed() {
     if (_currentIndex == 0) {
@@ -53,9 +47,13 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: _pages[_currentIndex],
       floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.limeAccent[400],
         onPressed: _onFloatingActionButtonPressed,
         tooltip: 'Action',
-        child: const Icon(Icons.add),
+        child: const Icon(
+          Icons.add,
+          color: Colors.black,
+        ),
       ),
       bottomNavigationBar: BottomNavigationBar(
         selectedItemColor: Colors.black,
@@ -115,6 +113,7 @@ void showBottomSheet(BuildContext context) {
             ElevatedButton.icon(
               icon: const Icon(Icons.create),
               style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
                 textStyle: const TextStyle(
                   fontWeight: FontWeight.bold,
                 ),
@@ -132,6 +131,12 @@ void showBottomSheet(BuildContext context) {
               },
             ),
             ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                textStyle: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               icon: const Icon(Icons.person),
               label: const Text(
                 "View Join Request",

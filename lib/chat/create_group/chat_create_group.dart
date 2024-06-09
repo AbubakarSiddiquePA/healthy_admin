@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously
+
 import 'dart:io';
 import 'package:another_flushbar/flushbar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -93,20 +95,28 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
     return Scaffold(
       appBar: AppBar(
         actions: [
-          ElevatedButton.icon(
-            label: const Text(
-              "Create",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
-            ),
-            icon: const Icon(
-              Icons.create,
-              color: Colors.black,
-            ),
-            onPressed: createGroup,
-          ),
+          _isCreating
+              ? Center(
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 16.0),
+                    child: CircularProgressIndicator(
+                        color: Colors.limeAccent[400]),
+                  ),
+                )
+              : ElevatedButton.icon(
+                  label: const Text(
+                    "Create",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                  icon: const Icon(
+                    Icons.create,
+                    color: Colors.black,
+                  ),
+                  onPressed: createGroup,
+                ),
         ],
         title: const Text(
           "Create Group",
