@@ -1,4 +1,3 @@
-// user_list_page.dart
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
@@ -51,24 +50,20 @@ class UserListPage extends StatelessWidget {
             itemCount: users.length,
             itemBuilder: (context, index) {
               final user = users[index];
-              return ListTile(
-                title: Text(user['email']),
-                subtitle:
-                    Text('Joined on: ${_formatTimestamp(user['joinedAt'])}'),
-                trailing: IconButton(
-                  icon: const Icon(Icons.remove_circle, color: Colors.red),
-                  onPressed: () async {
-                    await FirebaseFirestore.instance
-                        .collection('groups')
-                        .doc(groupId)
-                        .collection('users')
-                        .doc(user.id)
-                        .delete();
-
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('User removed from group')),
-                    );
-                  },
+              return Card(
+                color: Colors.limeAccent[400],
+                margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                elevation: 3,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: ListTile(
+                  title: Text(
+                    user['email'],
+                    style: TextStyle(fontWeight: FontWeight.w500),
+                  ),
+                  subtitle:
+                      Text('Joined on: ${_formatTimestamp(user['joinedAt'])}'),
                 ),
               );
             },

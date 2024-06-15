@@ -1,53 +1,64 @@
-// ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api
-
-import 'dart:io';
-
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_pdfview/flutter_pdfview.dart';
+import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:pdfx/pdfx.dart';
+import 'package:permission_handler/permission_handler.dart';
 
-class PdfViewerScreen extends StatefulWidget {
-  final String url;
+class PDFViewerPage extends StatefulWidget {
+  final String pdfUrl;
 
-  const PdfViewerScreen({required this.url, super.key});
+  PDFViewerPage({required this.pdfUrl});
 
   @override
-  _PdfViewerScreenState createState() => _PdfViewerScreenState();
+  _PDFViewerPageState createState() => _PDFViewerPageState();
 }
 
-class _PdfViewerScreenState extends State<PdfViewerScreen> {
-  PdfController? _pdfController;
+class _PDFViewerPageState extends State<PDFViewerPage> {
+  String? localFilePath;
   bool isLoading = true;
+  PDFViewController? _pdfController;
 
   @override
   void initState() {
     super.initState();
-    _downloadAndLoadPdf(widget.url);
+    _checkPermissionsAndDownloadFile(widget.pdfUrl);
   }
 
-  Future<void> _downloadAndLoadPdf(String url) async {
+  Future<void> _checkPermissionsAndDownloadFile(String url) async {
     try {
-      final response = await Dio()
-          .get(url, options: Options(responseType: ResponseType.bytes));
-
-      final directory = await getApplicationDocumentsDirectory();
-      final filePath = '${directory.path}/temp.pdf';
-      final file = File(filePath);
-      await file.writeAsBytes(response.data);
-
+      await _requestStoragePermission();
+      String filePath = await _downloadAndSaveFile(url);
       setState(() {
-        _pdfController = PdfController(
-          document: PdfDocument.openFile(filePath),
-        );
+        localFilePath = filePath;
         isLoading = false;
       });
     } catch (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Failed to load PDF: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to download PDF: $e')),
+      );
       setState(() {
         isLoading = false;
       });
+    }
+  }
+
+  Future<void> _requestStoragePermission() async {
+    if (await Permission.storage.request().isGranted) {
+      return;
+    } else {
+      throw Exception('Storage permission not granted');
+    }
+  }
+
+  Future<String> _downloadAndSaveFile(String url) async {
+    final directory = await getApplicationDocumentsDirectory();
+    final filePath = '${directory.path}/temp.pdf';
+
+    try {
+      await Dio().download(url, filePath);
+      return filePath;
+    } catch (e) {
+      throw Exception('Error downloading PDF: $e');
     }
   }
 
@@ -59,15 +70,24 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
-          : _pdfController != null
-              ? PdfView(controller: _pdfController!)
-              : const Center(child: Text('Failed to load PDF')),
+          : PDFView(
+              filePath: localFilePath!,
+              autoSpacing: true,
+              enableSwipe: true,
+              pageSnap: true,
+              swipeHorizontal: true,
+              onViewCreated: (PDFViewController pdfViewController) {
+                _pdfController = pdfViewController;
+              },
+              onError: (error) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Failed to load PDF: $error')),
+                );
+              },
+              onRender: (_pages) {
+                // Optionally handle render callback
+              },
+            ),
     );
-  }
-
-  @override
-  void dispose() {
-    _pdfController?.dispose();
-    super.dispose();
   }
 }

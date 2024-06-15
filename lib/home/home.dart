@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:healthy_admin/about/about.dart';
 import 'package:healthy_admin/books/books_add.dart';
 import 'package:healthy_admin/books/books_screen.dart';
 import 'package:healthy_admin/chat/chat_card.dart';
 import 'package:healthy_admin/chat/create_group/chat_create_group.dart';
 import 'package:healthy_admin/chat/join_request/chat_view_join_request.dart';
+import 'package:healthy_admin/privacy_policy/privacy_policy_menu.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.centerTitle});
@@ -42,8 +44,64 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: widget.centerTitle,
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          title: widget.centerTitle,
+          centerTitle: true,
+          leading: Builder(
+            builder: (BuildContext context) {
+              return IconButton(
+                onPressed: () {
+                  Scaffold.of(context).openDrawer();
+                },
+                icon: const Icon(Icons.menu),
+              );
+            },
+          )),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            const DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.limeAccent,
+              ),
+              child: Column(
+                children: [
+                  Text("Menu"),
+                  SizedBox(
+                    height: 5,
+                  ),
+                  CircleAvatar(
+                    maxRadius: 30,
+                    backgroundImage: AssetImage("assets/images/1.jpg"),
+                  )
+                ],
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.info),
+              title: const Text("Privacy Policy"),
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const PrivacyPolicyMenu(),
+                    ));
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.text_format),
+              title: const Text("About"),
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const AboutScreen(),
+                    ));
+              },
+            ),
+          ],
+        ),
       ),
       body: _pages[_currentIndex],
       floatingActionButton: FloatingActionButton(

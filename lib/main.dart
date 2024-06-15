@@ -3,6 +3,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:healthy_admin/home/home.dart';
+import 'package:healthy_admin/privacy_policy/privacy_policy.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,31 +18,32 @@ void main() async {
               storageBucket: "healthy-a9610.appspot.com",
             )
           : null);
-  runApp(const MyApp());
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  bool acceptedPrivacyPolicy = prefs.getBool("acceptedPrivacyPolicy") ?? false;
+
+  runApp(MyApp(
+    acceptedPrivacyPolicy: acceptedPrivacyPolicy,
+  ));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final bool acceptedPrivacyPolicy;
+  const MyApp({super.key, required this.acceptedPrivacyPolicy});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.limeAccent),
-        useMaterial3: true,
-      ),
-      home: const Center(
-        child: MyHomePage(
-          centerTitle: Center(
-            child: Text(
-              "Healthy Admin",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-            ),
-          ),
-          // title: ' Healthy Admin',
+        debugShowCheckedModeBanner: false,
+        title: 'Flutter Demo',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.limeAccent),
+          useMaterial3: true,
         ),
-      ),
-    );
+        home: acceptedPrivacyPolicy
+            ? const MyHomePage(
+                centerTitle: Text(
+                "Healthy Admin",
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ))
+            : const PrivacyPolicyScreen());
   }
 }

@@ -1,23 +1,13 @@
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:healthy_admin/books/books_pdf_view.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:pdfx/pdfx.dart';
+import 'package:permission_handler/permission_handler.dart';
 
-class BookListScreen extends StatefulWidget {
+class BookListScreen extends StatelessWidget {
   const BookListScreen({super.key});
-
-  @override
-  _BookListScreenState createState() => _BookListScreenState();
-}
-
-class _BookListScreenState extends State<BookListScreen> {
-  late ScaffoldMessengerState scaffoldMessenger;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    scaffoldMessenger = ScaffoldMessenger.of(context);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +16,7 @@ class _BookListScreenState extends State<BookListScreen> {
         centerTitle: true,
         title: const Text(
           'Book List',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),
       ),
       body: StreamBuilder(
@@ -51,18 +41,10 @@ class _BookListScreenState extends State<BookListScreen> {
             itemBuilder: (context, index) {
               return Card(
                 child: ListTile(
-                  leading: GestureDetector(
-                    onTap: () {
-                      _showEnlargedImage(context, books[index].imageUrl);
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Image.network(books[index].imageUrl),
-                    ),
-                  ),
+                  leading: Image.network(books[index].imageUrl),
                   title: Text(
                     books[index].title,
-                    style: const TextStyle(fontWeight: FontWeight.w700),
+                    style: TextStyle(fontWeight: FontWeight.w700),
                   ),
                   subtitle: Text(books[index].author),
                   trailing: Row(
@@ -83,9 +65,7 @@ class _BookListScreenState extends State<BookListScreen> {
                         },
                       ),
                       IconButton(
-                        icon: CircleAvatar(
-                            backgroundColor: Colors.limeAccent[400],
-                            child: const Icon(Icons.delete, color: Colors.red)),
+                        icon: const Icon(Icons.delete, color: Colors.red),
                         onPressed: () async {
                           showDialog<void>(
                             context: context,
@@ -147,42 +127,19 @@ class _BookListScreenState extends State<BookListScreen> {
           .doc(book.id)
           .delete();
 
-      // Show success message if the widget is still mounted
-      if (mounted) {
-        scaffoldMessenger.showSnackBar(
-          SnackBar(content: Text('${book.title}-book deleted successfully')),
+      // Show success message
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${book.title} deleted successfully')),
         );
       }
     } catch (e) {
-      // Show failure message if the widget is still mounted
-      if (mounted) {
-        scaffoldMessenger.showSnackBar(
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to delete ${book.title}: $e')),
         );
       }
     }
-  }
-
-  void _showEnlargedImage(BuildContext context, String imageUrl) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Image.network(imageUrl),
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: const Text("Close"),
-              ),
-            ],
-          ),
-        );
-      },
-    );
   }
 }
 
@@ -200,4 +157,89 @@ class Book {
     required this.imageUrl,
     required this.bookFileUrl,
   });
+}
+
+class PdfViewerScreen extends StatefulWidget {
+  final String url;
+
+  const PdfViewerScreen({required this.url, Key? key}) : super(key: key);
+
+  @override
+  _PdfViewerScreenState createState() => _PdfViewerScreenState();
+}
+
+class _PdfViewerScreenState extends State<PdfViewerScreen> {
+  PdfController? _pdfController;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkPermissionsAndDownloadFile(widget.url);
+  }
+
+  Future<void> _checkPermissionsAndDownloadFile(String url) async {
+    try {
+      await _requestStoragePermission();
+      String filePath = await _downloadAndSaveFile(url);
+      if (mounted) {
+        setState(() {
+          _pdfController = PdfController(
+            document: PdfDocument.openFile(filePath),
+          );
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to load PDF: $e')),
+        );
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _requestStoragePermission() async {
+    if (await Permission.storage.request().isGranted) {
+      return;
+    } else {
+      throw Exception('Storage permission not granted');
+    }
+  }
+
+  Future<String> _downloadAndSaveFile(String url) async {
+    final directory = await getApplicationDocumentsDirectory();
+    final filePath = '${directory.path}/temp.pdf';
+
+    try {
+      await Dio().download(url, filePath);
+      print('PDF downloaded to $filePath'); // Add logging
+      return filePath;
+    } catch (e) {
+      throw Exception('Error downloading PDF: $e');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('PDF Viewer'),
+      ),
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _pdfController != null
+              ? PdfView(controller: _pdfController!)
+              : const Center(child: Text('Failed to load PDF')),
+    );
+  }
+
+  @override
+  void dispose() {
+    _pdfController?.dispose();
+    super.dispose();
+  }
 }

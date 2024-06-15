@@ -1,5 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
@@ -87,8 +85,11 @@ class ViewJoinRequestPage extends StatelessWidget {
                                 Icons.check,
                                 color: Colors.green,
                               ),
-                              onPressed: () =>
-                                  _approveRequest(request.id, context),
+                              onPressed: () => _approveRequest(
+                                  request.id,
+                                  context,
+                                  request['groupId'],
+                                  request['email']),
                             ),
                           if (!isApproved)
                             IconButton(
@@ -119,12 +120,24 @@ class ViewJoinRequestPage extends StatelessWidget {
     return '$formattedDate $formattedTime';
   }
 
-  Future<void> _approveRequest(String requestId, BuildContext context) async {
+  Future<void> _approveRequest(String requestId, BuildContext context,
+      String groupId, String email) async {
     try {
       await FirebaseFirestore.instance
           .collection('joinRequests')
           .doc(requestId)
           .update({'status': 'approved'});
+
+      await FirebaseFirestore.instance
+          .collection('groups')
+          .doc(groupId)
+          .collection('users')
+          .add({
+        'email': email,
+        'joinedAt': Timestamp.now(),
+        'status': 'approved'
+      });
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Request approved')),
       );
