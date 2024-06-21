@@ -33,7 +33,8 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
     if (await canLaunchUrl(url)) {
       await launchUrl(url);
     } else {
-      throw "Could not launch url";
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text("We are unable to open the URL at the moment")));
     }
   }
 
@@ -51,7 +52,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
             const CircleAvatar(
               backgroundImage: AssetImage("assets/images/1.jpg"),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             const Text(
               'Privacy Policy',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),

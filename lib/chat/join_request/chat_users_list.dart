@@ -52,7 +52,7 @@ class UserListPage extends StatelessWidget {
               final user = users[index];
               return Card(
                 color: Colors.limeAccent[400],
-                margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                 elevation: 3,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -60,7 +60,7 @@ class UserListPage extends StatelessWidget {
                 child: ListTile(
                   title: Text(
                     user['email'],
-                    style: TextStyle(fontWeight: FontWeight.w500),
+                    style: const TextStyle(fontWeight: FontWeight.w500),
                   ),
                   subtitle:
                       Text('Joined on: ${_formatTimestamp(user['joinedAt'])}'),

@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api
+
 import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:dio/dio.dart';
@@ -7,7 +9,7 @@ import 'package:permission_handler/permission_handler.dart';
 class PDFViewerPage extends StatefulWidget {
   final String pdfUrl;
 
-  PDFViewerPage({required this.pdfUrl});
+  const PDFViewerPage({super.key, required this.pdfUrl});
 
   @override
   _PDFViewerPageState createState() => _PDFViewerPageState();

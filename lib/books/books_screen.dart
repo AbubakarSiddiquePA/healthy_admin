@@ -36,6 +36,15 @@ class BookListScreen extends StatelessWidget {
             );
           }).toList();
 
+          if (books.isEmpty) {
+            return const Center(
+              child: Text(
+                'No books added yet',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+              ),
+            );
+          }
+
           return ListView.builder(
             itemCount: books.length,
             itemBuilder: (context, index) {
@@ -44,7 +53,7 @@ class BookListScreen extends StatelessWidget {
                   leading: Image.network(books[index].imageUrl),
                   title: Text(
                     books[index].title,
-                    style: TextStyle(fontWeight: FontWeight.w700),
+                    style: const TextStyle(fontWeight: FontWeight.w700),
                   ),
                   subtitle: Text(books[index].author),
                   trailing: Row(
@@ -162,7 +171,7 @@ class Book {
 class PdfViewerScreen extends StatefulWidget {
   final String url;
 
-  const PdfViewerScreen({required this.url, Key? key}) : super(key: key);
+  const PdfViewerScreen({required this.url, super.key});
 
   @override
   _PdfViewerScreenState createState() => _PdfViewerScreenState();
@@ -216,7 +225,6 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
 
     try {
       await Dio().download(url, filePath);
-      print('PDF downloaded to $filePath'); // Add logging
       return filePath;
     } catch (e) {
       throw Exception('Error downloading PDF: $e');

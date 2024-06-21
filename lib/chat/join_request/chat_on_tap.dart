@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -6,10 +8,10 @@ class CommunityDetailsPage extends StatefulWidget {
   final String groupName;
 
   const CommunityDetailsPage({
-    Key? key,
+    super.key,
     required this.groupId,
     required this.groupName,
-  }) : super(key: key);
+  });
 
   @override
   _CommunityDetailsPageState createState() => _CommunityDetailsPageState();

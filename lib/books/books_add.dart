@@ -227,7 +227,7 @@ class _AddBookPageState extends State<AddBookPage> {
                 if (_bookFile != null) ...[
                   const SizedBox(height: 10),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Text(
                         'Selected PDF: ${_bookFile!.path.split('/').last}',
